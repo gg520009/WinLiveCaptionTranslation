@@ -11,6 +11,7 @@ import urllib.parse
 import json
 import datetime
 import sys
+import subprocess
 
 # ==========================================
 # 配置说明:
@@ -195,6 +196,21 @@ def check_hover():
                 
         time.sleep(0.2)
 
+def monitor_live_captions():
+    """监控实时字幕进程，如果关闭则自动退出本程序"""
+    # 刚启动时给系统实时字幕一点时间打开
+    time.sleep(5)
+    while True:
+        try:
+            # 使用 tasklist 检查进程是否存在
+            output = subprocess.check_output('tasklist /FI "IMAGENAME eq livecaptions.exe" /NH', shell=True).decode('utf-8', errors='ignore')
+            if 'livecaptions.exe' not in output.lower():
+                print("Windows 实时字幕已关闭，后台工具自动退出。")
+                os._exit(0)
+        except Exception:
+            pass
+        time.sleep(3)
+
 def main():
     global tooltip, highlight
     # 读取历史单词记录
@@ -227,6 +243,10 @@ def main():
     
     hover_thread = threading.Thread(target=check_hover, daemon=True)
     hover_thread.start()
+    
+    # 启动进程监控线程
+    monitor_thread = threading.Thread(target=monitor_live_captions, daemon=True)
+    monitor_thread.start()
     
     try:
         tooltip.root.mainloop()
