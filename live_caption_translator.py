@@ -145,7 +145,8 @@ def check_hover():
         if time.time() - last_mouse_move_time > 0.3 and tooltip and not tooltip.is_visible:
             x, y = current_mouse_pos
             
-            box_width, box_height = 80, 20
+            # 增大截图范围，防止长单词在边缘被截断漏字母
+            box_width, box_height = 200, 30
             bbox = (x - box_width, y - box_height, x + box_width, y + box_height)
             
             try:
