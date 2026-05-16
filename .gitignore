@@ -1,7 +1,6 @@
 # Python & PyInstaller generated files
 __pycache__/
-build/
-dist/
+
 *.spec
 *.pyc
 
