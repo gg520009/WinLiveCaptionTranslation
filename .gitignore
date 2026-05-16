@@ -1,0 +1,13 @@
+# Python & PyInstaller generated files
+__pycache__/
+build/
+dist/
+*.spec
+*.pyc
+
+# IDEs
+.vscode/
+.idea/
+
+# Vocab book (optional, don't upload personal vocab)
+vocabulary_book.txt

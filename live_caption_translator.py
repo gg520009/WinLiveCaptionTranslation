@@ -2,7 +2,7 @@ import os
 import time
 import threading
 import tkinter as tk
-from pynput import mouse
+from pynput import mouse, keyboard
 import pyautogui
 from PIL import ImageGrab
 import pytesseract
@@ -10,6 +10,7 @@ import urllib.request
 import urllib.parse
 import json
 import datetime
+import sys
 
 # ==========================================
 # 配置说明:
@@ -43,8 +44,14 @@ def save_to_vocab(word, translation):
         saved_words.add(word_lower)
         print(f"[{word}] 已自动加入生词本！")
 
+translation_cache = {}
+
 def get_youdao_translation(word):
     """使用有道词典的 Suggest API，专门用于查单词"""
+    word_lower = word.lower()
+    if word_lower in translation_cache:
+        return translation_cache[word_lower]
+        
     try:
         url = f"http://dict.youdao.com/suggest?num=1&doctype=json&q={urllib.parse.quote(word)}"
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -53,7 +60,9 @@ def get_youdao_translation(word):
             if data.get('result', {}).get('code') == 200:
                 entries = data.get('data', {}).get('entries', [])
                 if entries:
-                    return entries[0].get('explain', '')
+                    trans = entries[0].get('explain', '')
+                    translation_cache[word_lower] = trans
+                    return trans
     except Exception as e:
         pass
     return ""
@@ -131,11 +140,11 @@ def on_move(x, y):
 def check_hover():
     global tooltip, highlight, last_translated_word
     while True:
-        time.sleep(0.1)
-        if time.time() - last_mouse_move_time > 0.8 and tooltip and not tooltip.is_visible:
+        time.sleep(0.05)
+        if time.time() - last_mouse_move_time > 0.3 and tooltip and not tooltip.is_visible:
             x, y = current_mouse_pos
             
-            box_width, box_height = 100, 20
+            box_width, box_height = 80, 20
             bbox = (x - box_width, y - box_height, x + box_width, y + box_height)
             
             try:
@@ -191,6 +200,16 @@ def main():
     # 读取历史单词记录
     load_vocab()
     
+    # 因为要隐藏黑框，我们需要提供一个退出方式
+    def on_quit():
+        print("工具已退出。")
+        os._exit(0)
+        
+    hotkey_listener = keyboard.GlobalHotKeys({
+        '<ctrl>+<alt>+q': on_quit
+    })
+    hotkey_listener.start()
+    
     print("正在尝试打开 Windows 11 实时字幕 (快捷键 Win + Ctrl + L)...")
     pyautogui.hotkey('win', 'ctrl', 'l')
     time.sleep(1)
@@ -198,7 +217,7 @@ def main():
     print("后台查词工具已启动！")
     print(f"所有查询过的单词将会自动保存在: {VOCAB_FILE}")
     print("使用方法：将鼠标悬停在屏幕上的英文单词上约1秒钟，即可高亮该单词并显示中文解释。")
-    print("按下 Ctrl+C 可在命令行结束程序。")
+    print("按下 Ctrl+Alt+Q 可以彻底退出该后台工具。")
     
     listener = mouse.Listener(on_move=on_move)
     listener.start()

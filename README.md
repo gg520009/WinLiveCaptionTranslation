@@ -13,23 +13,32 @@
 ## 🛠️ 安装与运行
 
 ### 1. 安装 Tesseract-OCR 引擎 (必备)
+
 程序需要依赖 OCR 引擎来“看”清屏幕上的单词：
+
 - 请前往 [Tesseract-OCR 下载页面](https://github.com/UB-Mannheim/tesseract/wiki) 下载 Windows 安装包并安装。
 - 安装完毕后，请确保 `live_caption_translator.py` 代码中 `tesseract_cmd` 的路径与你的实际安装路径一致（默认通常是 `C:\Program Files\Tesseract-OCR\tesseract.exe`）。
 
 ### 2. 安装 Python 依赖
+
 打开命令行（CMD 或 PowerShell），运行以下命令安装必要的 Python 库：
+
 ```bash
 pip install pynput pyautogui pytesseract Pillow
 ```
 
 ### 3. 运行程序
+
 在命令行中执行：
+
 ```bash
 python live_caption_translator.py
 ```
 
 ## 📝 贡献与修改
+
 你可以根据自己的需求修改代码，比如：
+
 - 更改悬浮窗和高亮框的颜色（代码中的 `Tooltip` 和 `HighlightBox` 类）。
 - 更改生词本的保存路径（代码中的 `VOCAB_FILE` 常量）。
+11
